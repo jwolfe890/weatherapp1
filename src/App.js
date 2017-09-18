@@ -1,38 +1,80 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import logo from './logo.svg';
 import './App.css';
+import Navbar from './components/Navbar';
+import Forecast from './components/Forecast';
+import MinutelyForecast from './components/MinutelyForecast';
+import DailyForecast from './components/DailyForecast';
+
+import { changeRoute } from './actions/routeActions';
+import { stopFetchingData } from './actions/fetchingDataActions';
+import { fetchWeatherData } from './actions/weatherDataActions';
+
 
 class App extends Component {
-
-  constructor(props) {
-    super(props);
+  constructor() {
+    super() 
 
     this.state = {
-      fetchingData: true, 
-      weatherData: {} 
+      weatherData: {},
+      forecastKey: 'currently',
     }
   }
 
+  componentDidMount() {
+    this.props.fetchWeatherData()
+  }
+
+  handleRouteChange = routeName => this.props.changeRoute({ routeName: routeName })
+
   render() {
-    const { fetchingData } = this.state
+    // const { weatherData } = this.state
+    const { weatherData, routeName, fetchingData } = this.props
+    const forecast = weatherData[routeName]
+
     return (
       <div className="App">
         <div className="App-header">
           <h2>Weather App</h2>
         </div>
-        <p className="App-intro">
+        <div className="App-intro">
           {
             fetchingData ?
             <img src={logo} className="App-logo" alt="logo" />
             :
-            <h1>Data is received</h1>
+            <div>
+              <Navbar changeRoute={this.handleRouteChange} />
+              {routeName === 'currently' && 
+                <div>
+                  <h2>Current Forecast</h2>
+                  <Forecast forecast={forecast} />
+                </div>
+              }
+              {routeName === 'minutely' && <MinutelyForecast forecastData={forecast.data} />}
+              {routeName === 'hourly' && 
+                <div>
+                  <h2>Hourly Forecast</h2>
+                  {forecast.data.map((forecast, index) => <Forecast key={index} forecast={forecast} />)}
+                </div>
+              }
+              {routeName === 'daily' && <DailyForecast forecastData={forecast.data} />}
+            </div>
           }
-        </p>
+        </div>
       </div>
     );
   }
 }
 
-
-
-export default App;
+export default connect(
+  state => ({
+    fetchingData: state.fetchingData,
+    routeName: state.route.routeName,
+    weatherData: state.weatherData
+  }), { 
+    changeRoute, 
+    stopFetchingData,
+    fetchWeatherData  
+  }, 
+ )(App);

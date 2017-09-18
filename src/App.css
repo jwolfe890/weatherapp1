@@ -16,6 +16,25 @@
 
 .App-intro {
   font-size: large;
+  padding-top: 20px;
+}
+
+.nav-button {
+  border: 1px solid orangered;
+  color: white;
+  background: orangered;
+  margin: 12px;
+  padding: 8px;
+}
+
+.nav-button:hover {
+  color: orangered;
+  border: 1px solid orangered;
+  background: white;
+}
+
+.nav-button:outline {
+  outline: 0;
 }
 
 @keyframes App-logo-spin {
